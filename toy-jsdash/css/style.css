@@ -1,0 +1,32 @@
+canvas
+{
+    background:rgb(240, 240, 240);
+    display: block;
+    border-radius: 12px;
+    border-style: solid;
+    border-width: 5px;
+    border-color: silver;
+}
+body{
+    background: rgb(157, 215, 229);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    margin: 0;
+}
+.rules-btn {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+}
+.btn {
+    cursor: pointer;
+    border: 0;
+    padding: 10px 20px;
+    background: #000;
+    color: #fff;
+    border-radius: 5px;
+}    

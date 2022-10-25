@@ -8,15 +8,18 @@
 using namespace std;
 
 void insert_sort(int* arr, int size){
-	for(int i = 0; i < size; i ++){
-		int base = arr[i];
-		for(int j = i - 1; j >= 0; j --){
-			if(arr[j] <= base){
-				arr[j + 1] = base;
+	for(int* i = arr + 1; i < arr + size; i ++){
+		int base = *i;
+		int *j = i - 1;
+		while(j >= arr && *j > base){
+			if(*j <= base){
+				*(j + 1) = base;
 				break;
 			}
-			arr[j + 1] = arr[j];
+			*(j + 1) = *(j);
+			j --;
 		}
+		*(j + 1) = base;
 	}
 }
 // vanilla quick sort

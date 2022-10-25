@@ -12,10 +12,6 @@ void insert_sort(int* arr, int size){
 		int base = *i;
 		int *j = i - 1;
 		while(j >= arr && *j > base){
-			if(*j <= base){
-				*(j + 1) = base;
-				break;
-			}
 			*(j + 1) = *(j);
 			j --;
 		}

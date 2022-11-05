@@ -1,6 +1,8 @@
 #include<iostream>
 #include<fstream>
 #include<sstream>
+#include<string>
+#include<queue>
 using namespace std;
 
 enum RBColor{
@@ -44,7 +46,7 @@ private:
 	void preorder(RBNode* node, ofstream& fout){
 		if(node == null)
 			return;
-		fout << node->key << ", " << node->get_color() << endl;
+		fout << node->key << ",\t" << node->get_color() << endl;
 		preorder(node->left, fout);
 		preorder(node->right, fout);
 	}
@@ -52,7 +54,7 @@ private:
 		if(node == null)
 			return;
 		inorder(node->left, fout);
-		fout << node->key << ", " << node->get_color() << endl;
+		fout << node->key << ",\t" << node->get_color() << endl;
 		inorder(node->right, fout);
 	}
 	void postorder(RBNode* node, ofstream& fout){
@@ -60,7 +62,7 @@ private:
 			return;
 		postorder(node->left, fout);
 		postorder(node->right, fout);
-		fout << node->key << ", " << node->get_color() << endl;
+		fout << node->key << ",\t" << node->get_color() << endl;
 	}
 	RBNode* tree_minimum(RBNode* node){
 		RBNode* scan = node;
@@ -199,26 +201,26 @@ private:
 			else{
 				RBNode* w = x->parent->left;
 				if(w->color == RED){
-					// case 1
+					// case 5
 					w->color = BLACK;
 					x->parent->color = RED;
 					rotate_right(x->parent);
 					w = x->parent->left;
 				}
 				if(w->left->color == BLACK && w->right->color == BLACK){
-					// case 2
+					// case 6
 					w->color = RED;
 					x = x->parent;
 				}
 				else{	
 					if(w->left->color == BLACK){
-						// case 3
+						// case 7
 						w->right->color = BLACK;
 						w->color = RED;
 						rotate_left(w);
 						w = x->parent->left;
 					}
-					// case 4
+					// case 8
 					w->color = x->parent->color;
 					x->parent->color = BLACK;
 					w->left->color = BLACK;
@@ -325,17 +327,32 @@ public:
 		if(y_origin_color == BLACK)
 			rb_delete_fixup(x);
 	}
-	void preorder(){
-		ofstream fout("preorder.txt");
+	void preorder(string out){
+		ofstream fout(out);
 		preorder(root, fout);
 	}
-	void inorder(){
-		ofstream fout("inorder.txt");
+	void inorder(string out){
+		ofstream fout(out);
 		inorder(root, fout);
 	}
-	void postorder(){
-		ofstream fout("postorder.txt");
+	void postorder(string out){
+		ofstream fout(out);
 		postorder(root, fout);
+	}
+	void levelorder(string out){
+		ofstream fout(out);
+		queue<RBNode*> q;
+		q.push(root);
+		while(!q.empty()){
+			RBNode* node = q.front();
+			q.pop();
+			
+			fout << node->key << ",\t" << node->get_color() << endl;
+			if(node->left != null)
+				q.push(node->left);
+			if(node->right != null)
+				q.push(node->right);
+		}
 	}
 	bool rb_verify(){
 		if(root->color != BLACK)
@@ -359,7 +376,7 @@ int main(){
 	}
 	cout << endl;
 	cout << (rbtree.rb_verify() ? "valid RB tree" : "invalid RB tree");
-	rbtree.preorder();
-	rbtree.inorder();
-	rbtree.postorder();
+	rbtree.preorder("NLR.txt");
+	rbtree.inorder("LNR.txt");
+	rbtree.levelorder("LOT.txt");
 }

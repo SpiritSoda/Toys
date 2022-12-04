@@ -120,8 +120,6 @@ public:
 		q.pop();
 		// backtrace from root to leaf and generate code
 		construct_code(root, "");
-		ofstream fout("table.txt");
-		output(fout);
 		
 		int origin = 0, compacted = 0;
 		for(unordered_map<char, string>::iterator ii = dict.begin(); ii != dict.end(); ii ++){
@@ -148,6 +146,12 @@ public:
 		for(unordered_map<char, string>::iterator ii = dict.begin(); ii != dict.end(); ii ++){
 			os << *(leaf[(*ii).first]) << "         \t" << (*ii).second << endl;
 		}
+	}
+	void output(string outfile){
+		string out_file = "table.txt";
+		ofstream fout(outfile);
+		output(fout);
+		fout.close();
 	}
 	void display_leaf(){
 		for(unordered_map<char, HuffmanNode*>::iterator ii = leaf.begin(); ii != leaf.end(); ii ++){
@@ -227,8 +231,10 @@ int main(){
 		encoder.load(line);
 	}
 	encoder.generate();
+	string out_file = "table.txt";
+	encoder.output(out_file);
 	
-	decoder.load("table.txt");
+	decoder.load(out_file);
 	string s = "Mr. Jones, of the Manor Farm, had locked the hen-houses for the night, but \
 was too drunk to remember to shut the pop-holes. With the ring of light \
 from his lantern dancing from side to side, he lurched across the yard, \

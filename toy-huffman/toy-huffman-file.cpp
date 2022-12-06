@@ -5,6 +5,11 @@
 #include <queue>
 using namespace std;
 
+// type of code length in encoded file
+typedef char code_len_t;
+// type of write / read buffer
+typedef int buff_t;
+
 const string suffix = ".huffman";
 // Huffman tree node
 class HuffmanNode{
@@ -149,7 +154,7 @@ public:
 
 		// Todo: append total length of encoded content is safer here (to avoid over-length), but I'm lazy lol~
 		
-		int buffer = 0;
+		buff_t buffer = 0;
 		int MAX = sizeof(buffer) * 8;
 		int offset = MAX - 1;
 		for(const string& s: lines){
@@ -176,10 +181,10 @@ public:
 			for(unordered_map<char, string>::iterator ii = dict.begin(); ii != dict.end(); ii ++){
 				char ch = (*ii).first;
 				os.write(&ch, 1);
-				int len = (*ii).second.length();
+				code_len_t len = (*ii).second.length();
 				string code = (*ii).second;
 				
-				os.write((char* )&len, 4);
+				os.write((char* )&len, sizeof(len));
 				
 				char buffer = 0;
 				int i = 0;
@@ -250,8 +255,8 @@ public:
 		char buffer = 0;
 		int MAX = sizeof(buffer) * 8;
 		while(fin.read(&ch, 1) && (ch != '\0')){
-			int len = 0;
-			fin.read((char*)&len, 4);
+			code_len_t len = 0;
+			fin.read((char*)&len, sizeof(len));
 			string code = "";
 			int buffer_cnt = (len + MAX - 1) / MAX;
 			int pos = 0;
@@ -280,7 +285,7 @@ public:
 		load(fin);
 		ofstream fout(file + ".decoded.txt");
 		
-		int buffer = 0;
+		buff_t buffer = 0;
 		int MAX = sizeof(buffer) * 8;
 		int offset = MAX - 1;
 		fin.read((char*)&buffer, sizeof(buffer));

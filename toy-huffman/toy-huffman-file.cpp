@@ -146,6 +146,8 @@ public:
 		
 		ofstream fout(file + suffix, ios_base::out | ios_base::binary);
 		output(fout, true);
+
+		// Todo: append total length of encoded content is safer here (to avoid over-length), but I'm lazy lol~
 		
 		int buffer = 0;
 		int MAX = sizeof(buffer) * 8;

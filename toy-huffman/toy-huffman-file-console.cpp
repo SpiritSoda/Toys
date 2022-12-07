@@ -336,19 +336,29 @@ public:
 			fout << line;
 	}
 };
-int main(){
-	HuffmanEncoder encoder;
-	encoder.encode_space = true;
-	HuffmanDecoder decoder;
-	
-	string file = "original.txt";
-	encoder.encode(file);
-	
-	string out_file = "table.txt";
-	encoder.output(out_file);
-	
-	decoder.decode(file + suffix);
-	
-	encoder.reset();
-	decoder.reset();
+int main(int argc, char* argv[]){
+	if(argc != 3){
+		cout << "Usage: ./{EXENAME}.exe {--encode or --decode} {FILENAME}" << endl;
+		return -1;
+	}
+	string opt = argv[1];
+	if(opt != "--encode" && opt != "--decode"){
+		cout << "Usage: ./{EXENAME}.exe {--encode or --decode} {FILENAME}" << endl;
+		return -1;
+	}
+	string file = argv[2];
+	if(opt == "--encode"){
+		HuffmanEncoder encoder;
+		encoder.encode_space = true;
+		encoder.encode(file);
+		
+		string out_file = "table.txt";
+		encoder.output(out_file);
+		encoder.reset();
+	}
+	else{
+		HuffmanDecoder decoder;
+		decoder.decode(file);
+		decoder.reset();	
+	}
 }

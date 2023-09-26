@@ -247,6 +247,9 @@ class mat {
         })
         return Math.sqrt(square)
     }
+    flat(){
+        return new Float32Array([...this.inner.flat()])
+    }
     /**
      * 
      * @param {mat} mat1 
@@ -289,10 +292,10 @@ function lookat(pos, target, up){
         [...direction, 0],
         [0, 0, 0, 1]
     ], R = [
-        [1, 0, 0, - pos[0]],
-        [0, 1, 0, - pos[1]],
-        [0, 0, 1, - pos[2]],
-        [0, 0, 0, 1]
+        [1, 0, 0, - pos[0]  ],
+        [0, 1, 0, - pos[1]  ],
+        [0, 0, 1, - pos[2]  ],
+        [0, 0, 0, 1         ]
     ]
     return mat.mul(L, R)
 }
@@ -329,10 +332,10 @@ function perspective(fovy, aspect, znear, zfar){
         r = t * aspect,
         l = -r
     return new mat([
-        [2 * n / (r - l), 0, 0, 0],
-        [0, 2 * n / (t - b), 0, 0],
-        [0, 0, (n + f) / (f - n), -2 * n * f / (f - n)],
-        [0, 0, 1, 0]
+        [2 * n / (r - l), 0                 , 0                     , 0                     ],
+        [0              , 2 * n / (t - b)   , 0                     , 0                     ],
+        [0              , 0                 , (n + f) / (f - n)     , -2 * n * f / (f - n)  ],
+        [0              , 0                 , -1                    , 0                     ]
     ])
 }
 /**
@@ -362,10 +365,10 @@ function scale(transform, scales){
     if(!isVector3D(scales))
         throw "scales must be 3D"
     const matrix = [
-        [scales[0], 0, 0, 0],
-        [0, scales[1], 0, 0],
-        [0, 0, scales[2], 0],
-        [0, 0, 0, 1]
+        [scales[0]  , 0         , 0         , 0],
+        [0          , scales[1] , 0         , 0],
+        [0          , 0         , scales[2] , 0],
+        [0          , 0         , 0         , 1]
     ]
     return mat.mul(matrix, transform)
 }
@@ -383,10 +386,10 @@ function rotate(transform, theta, axis){
         throw "axis must be 3D"
     const a = Math.cos(theta / 2), b = Math.sin(theta / 2) * axis[0], c = Math.sin(theta / 2) * axis[1], d = Math.sin(theta / 2) * axis[2]
     const quaternion = [
-        [1 - 2 * c * c - 2 * d * d, 2 * b * c - 2 * a * d, 2 * a * c + 2 * b * d, 0],
-        [2 * b * c + 2 * a * d, 1 - 2 * b * b - 2 * d * d, 2 * c * d - 2 * a * b, 0],
-        [2 * b * d - 2 * a * c, 2 * a * b + 2 * c * d, 1 - 2 * b * b - 2 * c * c, 0],
-        [0, 0, 0, 1]
+        [1 - 2 * c * c - 2 * d * d  , 2 * b * c - 2 * a * d     , 2 * a * c + 2 * b * d     , 0],
+        [2 * b * c + 2 * a * d      , 1 - 2 * b * b - 2 * d * d , 2 * c * d - 2 * a * b     , 0],
+        [2 * b * d - 2 * a * c      , 2 * a * b + 2 * c * d     , 1 - 2 * b * b - 2 * c * c , 0],
+        [0                          , 0                         , 0                         , 1]
     ]
     return mat.mul(quaternion, transform)
 }
@@ -401,10 +404,10 @@ function translate(transform, operation){
     if(!isVector3D(operation))
         throw "operation must be 3D"
     const matrix = [
-        [1, 0, 0, operation[0]],
-        [0, 1, 0, operation[1]],
-        [0, 0, 1, operation[2]],
-        [0, 0, 0, 1]
+        [1, 0, 0, operation[0]  ],
+        [0, 1, 0, operation[1]  ],
+        [0, 0, 1, operation[2]  ],
+        [0, 0, 0, 1             ]
     ]
     return mat.mul(matrix, transform)
 }

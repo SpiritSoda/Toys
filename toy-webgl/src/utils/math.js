@@ -256,17 +256,17 @@ class mat {
      * @param {mat} mat2 
      */
     static mul(mat1, mat2){
-        const row1 = mat1.length, col1 = mat1[0]?.length
-        const row2 = mat2.length, col2 = mat2[0]?.length
+        const col1 = mat1.length, row1 = mat1[0]?.length
+        const col2 = mat2.length, row2 = mat2[0]?.length
         if(col1 != row2)
             throw "matrix size not match"
-        const inner = new Array(row1)
-        for(let i = 0; i < row1; i ++)
-            inner[i] = new Array(col2).fill(0)
+        const inner = new Array(col2)
+        for(let i = 0; i < col2; i ++)
+            inner[i] = new Array(row1).fill(0)
         for(let i = 0; i < row1; i ++){
             for(let j = 0; j < col2; j ++){
                 for(let k = 0; k < row2; k ++)
-                    inner[i][j] += mat1[i][k] * mat2[k][j]
+                    inner[j][i] += mat1[k][i] * mat2[j][k]
             }
         }
         return new mat(inner)
@@ -287,15 +287,15 @@ function lookat(pos, target, up){
         throw "vector up is not a 3D vector"
     const direction = vec.translate(target, pos, -1), right = vec.cross(direction, up)
     const L = [
-        [...right, 0],
-        [...up, 0],
-        [...direction, 0],
-        [0, 0, 0, 1]
+        [right[0]   , up[0] , direction[0]  , 0],
+        [right[1]   , up[1] , direction[1]  , 0],
+        [right[2]   , up[2] , direction[2]  , 0],
+        [0          , 0     , 0             , 1]
     ], R = [
-        [1, 0, 0, - pos[0]  ],
-        [0, 1, 0, - pos[1]  ],
-        [0, 0, 1, - pos[2]  ],
-        [0, 0, 0, 1         ]
+        [1          , 0, 0, 0],
+        [- pos[0]   , 1, 0, 0],
+        [- pos[1]   , 0, 1, 0],
+        [- pos[2]   , 0, 0, 1]
     ]
     return mat.mul(L, R)
 }
@@ -325,17 +325,12 @@ function radians(degree){
  * @param {number} zfar 
  */
 function perspective(fovy, aspect, znear, zfar){
-    const n = -znear, 
-        f = -zfar, 
-        t = znear * Math.tan(fovy / 2),
-        b = -t,
-        r = t * aspect,
-        l = -r
+    const tanHalfFovy = Math.tan(fovy / 2)
     return new mat([
-        [2 * n / (r - l), 0                 , 0                     , 0                     ],
-        [0              , 2 * n / (t - b)   , 0                     , 0                     ],
-        [0              , 0                 , (n + f) / (f - n)     , -2 * n * f / (f - n)  ],
-        [0              , 0                 , -1                    , 0                     ]
+        [1 / (aspect * tanHalfFovy) , 0                 , 0                                 , 0     ],
+        [0                          , 1 / tanHalfFovy   , 0                                 , 0     ],
+        [0                          , 0                 , - (zfar + znear) / (zfar - znear) , -1    ],
+        [0                          , 0                 , -2 * zfar * znear / (zfar - znear), 0     ]
     ])
 }
 /**
@@ -386,9 +381,9 @@ function rotate(transform, theta, axis){
         throw "axis must be 3D"
     const a = Math.cos(theta / 2), b = Math.sin(theta / 2) * axis[0], c = Math.sin(theta / 2) * axis[1], d = Math.sin(theta / 2) * axis[2]
     const quaternion = [
-        [1 - 2 * c * c - 2 * d * d  , 2 * b * c - 2 * a * d     , 2 * a * c + 2 * b * d     , 0],
-        [2 * b * c + 2 * a * d      , 1 - 2 * b * b - 2 * d * d , 2 * c * d - 2 * a * b     , 0],
-        [2 * b * d - 2 * a * c      , 2 * a * b + 2 * c * d     , 1 - 2 * b * b - 2 * c * c , 0],
+        [1 - 2 * c * c - 2 * d * d  , 2 * b * c + 2 * a * d     , 2 * b * d - 2 * a * c     , 0],
+        [2 * b * c - 2 * a * d      , 1 - 2 * b * b - 2 * d * d , 2 * a * b + 2 * c * d    , 0],
+        [2 * a * c + 2 * b * d      , 2 * c * d - 2 * a * b     , 1 - 2 * b * b - 2 * c * c , 0],
         [0                          , 0                         , 0                         , 1]
     ]
     return mat.mul(quaternion, transform)
@@ -404,10 +399,10 @@ function translate(transform, operation){
     if(!isVector3D(operation))
         throw "operation must be 3D"
     const matrix = [
-        [1, 0, 0, operation[0]  ],
-        [0, 1, 0, operation[1]  ],
-        [0, 0, 1, operation[2]  ],
-        [0, 0, 0, 1             ]
+        [1              , 0             , 0             , 0],
+        [0              , 1             , 0             , 0],
+        [0              , 0             , 1             , 0],
+        [operation[0]   , operation[1]  , operation[2]  , 1]
     ]
     return mat.mul(matrix, transform)
 }
@@ -437,9 +432,9 @@ function transform(vector, matrix){
         throw "transform must be 4D"
     if(!isVector3D(vector))
         throw "vector must be 3D"
-    const vec_in_mat = transpose([[...vector, 1]])
+    const vec_in_mat = [[...vector, 1]]
     const result = mat.mul(matrix, vec_in_mat)
-    return result.inner.flat().slice(0, 3)
+    return result.inner[0].slice(0, 3)
 }
 
 export {

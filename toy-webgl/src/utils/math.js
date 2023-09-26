@@ -123,7 +123,13 @@ class vec {
      */
     translate(k){
         for(let i = 0; i < this.inner.length; i ++)
-            this.inner[i] += k
+            this.inner[i] += k instanceof vec ? k[i] : k
+    }
+    /**
+     * 
+     */
+    flat(){
+        return new Float32Array(this.inner)
     }
     /**
      * 
@@ -285,17 +291,17 @@ function lookat(pos, target, up){
         throw "vector direction is not a 3D vector"
     if(up.length != 3)
         throw "vector up is not a 3D vector"
-    const direction = vec.translate(target, pos, -1), right = vec.cross(direction, up)
+    const direction = vec.translate(pos, target, -1), right = vec.cross(up, direction)
     const L = [
         [right[0]   , up[0] , direction[0]  , 0],
         [right[1]   , up[1] , direction[1]  , 0],
         [right[2]   , up[2] , direction[2]  , 0],
         [0          , 0     , 0             , 1]
     ], R = [
-        [1          , 0, 0, 0],
-        [- pos[0]   , 1, 0, 0],
-        [- pos[1]   , 0, 1, 0],
-        [- pos[2]   , 0, 0, 1]
+        [1          , 0         , 0         , 0],
+        [0          , 1         , 0         , 0],
+        [0          , 0         , 1         , 0],
+        [- pos[0]   , - pos[1]  , - pos[2]  , 1]
     ]
     return mat.mul(L, R)
 }
@@ -381,10 +387,10 @@ function rotate(transform, theta, axis){
         throw "axis must be 3D"
     const a = Math.cos(theta / 2), b = Math.sin(theta / 2) * axis[0], c = Math.sin(theta / 2) * axis[1], d = Math.sin(theta / 2) * axis[2]
     const quaternion = [
-        [1 - 2 * c * c - 2 * d * d  , 2 * b * c + 2 * a * d     , 2 * b * d - 2 * a * c     , 0],
-        [2 * b * c - 2 * a * d      , 1 - 2 * b * b - 2 * d * d , 2 * a * b + 2 * c * d    , 0],
-        [2 * a * c + 2 * b * d      , 2 * c * d - 2 * a * b     , 1 - 2 * b * b - 2 * c * c , 0],
-        [0                          , 0                         , 0                         , 1]
+        [1 - 2 * c * c - 2 * d * d  , 2 * b * c + 2 * a * d     , 2 * b * d - 2 * a * c     , 0 ],
+        [2 * b * c - 2 * a * d      , 1 - 2 * b * b - 2 * d * d , 2 * a * b + 2 * c * d     , 0 ],
+        [2 * a * c + 2 * b * d      , 2 * c * d - 2 * a * b     , 1 - 2 * b * b - 2 * c * c , 0 ],
+        [0                          , 0                         , 0                         , 1 ]
     ]
     return mat.mul(quaternion, transform)
 }

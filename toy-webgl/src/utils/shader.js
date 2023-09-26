@@ -1,5 +1,9 @@
+import { mat, vec } from "./math"
+
 export class Shader{
+    /** @type {WebGLProgram} */
     ID
+    /** @type {WebGL2RenderingContext} */
     GL
     /**
      * 
@@ -10,6 +14,7 @@ export class Shader{
      */
     constructor(gl, vertex_src, fragment_src){
         this.GL = gl
+        console.log("GLSL language version:", gl.SHADING_LANGUAGE_VERSION)
         const vertexShader = this.GL.createShader(this.GL.VERTEX_SHADER)
         if(!vertexShader)
           return
@@ -41,7 +46,7 @@ export class Shader{
      * @param {boolean} value 
      */
     setBool(name, value){
-        this.GL.uniform1i(this.GL.getUniformLocation(ID, name), value)
+        this.GL.uniform1i(this.GL.getUniformLocation(this.ID, name), value)
     }
     /**
      * 
@@ -49,14 +54,54 @@ export class Shader{
      * @param {number} value 
      */
     setInt(name, value){
-        this.GL.uniform1i(this.GL.getUniformLocation(ID, name), value)
+        this.GL.uniform1i(this.GL.getUniformLocation(this.ID, name), value)
     }
     /**
      * 
      * @param {string} name 
      * @param {number} value 
      */
-    setFloat(){
-        this.GL.uniform1f(this.GL.getUniformLocation(ID, name), value)
+    setFloat(name, value){
+        this.GL.uniform1f(this.GL.getUniformLocation(this.ID, name), value)
+    }
+    /**
+     * 
+     * @param {string} name 
+     * @param {mat} value 
+     */
+    setMat3(name, value){
+        this.GL.uniformMatrix3fv(this.GL.getUniformLocation(this.ID, name), false, value.flat())
+    }
+    /**
+     * 
+     * @param {string} name 
+     * @param {mat} value 
+     */
+    setMat4(name, value){
+        this.GL.uniformMatrix4fv(this.GL.getUniformLocation(this.ID, name), false, value.flat())
+    }
+    /**
+     * 
+     * @param {string} name 
+     * @param {vec | Array<number>} value 
+     */
+    setVec2(name, value){
+        this.GL.uniform2fv(this.GL.getUniformLocation(this.ID, name), value instanceof vec ? value.flat(): new Float32Array(value))
+    }
+    /**
+     * 
+     * @param {string} name 
+     * @param {vec | Array<number>} value 
+     */
+    setVec3(name, value){
+        this.GL.uniform3fv(this.GL.getUniformLocation(this.ID, name), value instanceof vec ? value.flat(): new Float32Array(value))
+    }
+    /**
+     * 
+     * @param {string} name 
+     * @param {vec | Array<number>} value 
+     */
+    setVec4(name, value){
+        this.GL.uniform4fv(this.GL.getUniformLocation(this.ID, name), value instanceof vec ? value.flat(): new Float32Array(value))
     }
 }

@@ -12,17 +12,27 @@ const SENSITIVITY = 0.1
 const SPEED = 2.5
 const ZOOM = 45.0
 
-class Camera {
+export class Camera {
+    /** @type {glm.vec} */
     position
+    /** @type {glm.vec} */
     front
+    /** @type {glm.vec} */
     up
+    /** @type {glm.vec} */
     right
+    /** @type {glm.vec} */
     worldUp
 
+    /** @type {number} */
     yaw
+    /** @type {number} */
     pitch
+    /** @type {number} */
     movement_speed
+    /** @type {number} */
     mouse_sensitivity
+    /** @type {number} */
     zoom
 
     /**
@@ -32,32 +42,98 @@ class Camera {
      * @param {number} yaw 
      * @param {number} pitch 
      */
-    constructor(position = glm.vec(0.0, 0.0, 0.0), 
-        up = glm.vec(0.0, 1.0, 0.0),
+    constructor(position = new glm.vec(0.0, 0.0, 0.0), 
+        up = new glm.vec(0.0, 1.0, 0.0),
         yaw = YAW,
         pitch = PITCH){
         this.position = position
         this.worldUp = up
         this.yaw = yaw
         this.pitch = pitch
-        this.front = glm.vec(0.0, 0.0, 1.0)
+        this.front = new glm.vec(0.0, 0.0, -1.0)
         this.movement_speed = SPEED
         this.mouse_sensitivity = SENSITIVITY
         this.zoom = ZOOM
+        this.last_mouseX = undefined
+        this.last_mouseY = undefined
         
         this.updateCameraVector()
+        document.addEventListener("mousemove", (e) => {
+            this.processMouseMovement(e.offsetX, e.offsetY)
+        })
+        document.addEventListener("keypress", (e) => {
+            switch(e.code){
+                case "KeyZ":
+                    this.yaw = yaw
+                    this.pitch = pitch
+                    this.position = position
+                    this.front = new glm.vec(0.0, 0.0, -1.0)
+                    this.updateCameraVector()
+                    break
+                case "KeyA":
+                    this.processKeyBoard(CAMERA_MOVEMENT.LEFT, 0.01)
+                    break
+                case "KeyW":
+                    this.processKeyBoard(CAMERA_MOVEMENT.FORWARD, 0.01)
+                    break
+                case "KeyS":
+                    this.processKeyBoard(CAMERA_MOVEMENT.BACKWARD, 0.01)
+                    break
+                case "KeyD":
+                    this.processKeyBoard(CAMERA_MOVEMENT.RIGHT, 0.01)
+                    break
+                
+            }
+        })
     }
     getViewMatrix(){
-        return glm.lookat(this.position, this.position + this.front, this.up)
+        return glm.lookat(this.position, glm.vec.translate(this.position, this.front), this.up)
     }
     updateCameraVector(){
         /** @type {glm.vec} */
-        const front = glm.vec(0.0, 0.0, 0.0)
-        front.x = Math.cos(glm.radians(YAW)) * Math.cos(glm.radians(this.pitch))
+        const front = new glm.vec(0.0, 0.0, 0.0)
+        front.x = Math.cos(glm.radians(this.yaw)) * Math.cos(glm.radians(this.pitch))
         front.y = Math.sin(glm.radians(this.pitch))
-        front.z = Math.sin(glm.radians(yaw)) * Math.cos(glm.radians(this.pitch))
+        front.z = Math.sin(glm.radians(this.yaw)) * Math.cos(glm.radians(this.pitch))
         this.front = front
         this.right = glm.normalize(glm.vec.cross(this.front, this.worldUp))
         this.up = glm.normalize(glm.vec.cross(this.right, this.front))
+    }
+    processMouseMovement(xoffset, yoffset, constrainPitch = true){
+        if(!this.last_mouseX || !this.last_mouseY){
+            this.last_mouseX = xoffset
+            this.last_mouseY = yoffset
+            return
+        }
+        let x = xoffset, y = yoffset
+        x -= this.last_mouseX
+        y -= this.last_mouseY
+        
+        this.last_mouseX = xoffset
+        this.last_mouseY = yoffset
+        x *= this.mouse_sensitivity
+        y *= - this.mouse_sensitivity
+
+        this.yaw += x;
+        this.pitch += y;
+
+        if(constrainPitch){
+            if(this.pitch > 89.0)
+                this.pitch = 89.0
+            if(this.pitch < -89.0)
+                this.pitch = 89.0
+        }
+        this.updateCameraVector()
+    }
+    processKeyBoard(direction, deltaTime = 0.5){
+        const velocity = this.movement_speed * deltaTime
+        if(direction == CAMERA_MOVEMENT.FORWARD)
+            this.position = glm.vec.translate(this.position, this.front, velocity)
+        if(direction == CAMERA_MOVEMENT.BACKWARD)
+            this.position = glm.vec.translate(this.position, this.front, - velocity)
+        if(direction == CAMERA_MOVEMENT.LEFT)
+            this.position = glm.vec.translate(this.position, this.right, - velocity)
+        if(direction == CAMERA_MOVEMENT.RIGHT)
+            this.position = glm.vec.translate(this.position, this.right, velocity)
     }
 }

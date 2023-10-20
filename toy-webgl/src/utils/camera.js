@@ -3,7 +3,9 @@ const CAMERA_MOVEMENT = {
     FORWARD: 0,
     BACKWARD: 1,
     LEFT: 2,
-    RIGHT: 3
+    RIGHT: 3,
+    UP: 4,
+    DOWN: 5
 }
 
 const YAW = -90.0
@@ -61,29 +63,27 @@ export class Camera {
         document.addEventListener("mousemove", (e) => {
             this.processMouseMovement(e.offsetX, e.offsetY)
         })
-        document.addEventListener("keypress", (e) => {
-            switch(e.code){
-                case "KeyZ":
-                    this.yaw = yaw
-                    this.pitch = pitch
-                    this.position = position
-                    this.front = new glm.vec(0.0, 0.0, -1.0)
-                    this.updateCameraVector()
-                    break
-                case "KeyA":
-                    this.processKeyBoard(CAMERA_MOVEMENT.LEFT, 0.01)
-                    break
-                case "KeyW":
-                    this.processKeyBoard(CAMERA_MOVEMENT.FORWARD, 0.01)
-                    break
-                case "KeyS":
-                    this.processKeyBoard(CAMERA_MOVEMENT.BACKWARD, 0.01)
-                    break
-                case "KeyD":
-                    this.processKeyBoard(CAMERA_MOVEMENT.RIGHT, 0.01)
-                    break
-                
+        document.addEventListener("keydown", (e) => {
+            if(e.code == "KeyZ"){
+                this.yaw = yaw
+                this.pitch = pitch
+                this.position = position
+                this.front = new glm.vec(0.0, 0.0, -1.0)
+                this.updateCameraVector()
             }
+            if(e.code == "KeyA")
+                this.processKeyBoard(CAMERA_MOVEMENT.LEFT, 0.01)
+            if(e.code == "KeyW")
+                this.processKeyBoard(CAMERA_MOVEMENT.FORWARD, 0.01)
+            if(e.code == "KeyS")
+                this.processKeyBoard(CAMERA_MOVEMENT.BACKWARD, 0.01)
+            if(e.code == "KeyD")
+                this.processKeyBoard(CAMERA_MOVEMENT.RIGHT, 0.01)
+            if(e.code == "Space")
+                this.processKeyBoard(CAMERA_MOVEMENT.UP, 0.01)
+            if(e.shiftKey)
+                this.processKeyBoard(CAMERA_MOVEMENT.DOWN, 0.01)
+
         })
     }
     getViewMatrix(){
@@ -135,5 +135,9 @@ export class Camera {
             this.position = glm.vec.translate(this.position, this.right, - velocity)
         if(direction == CAMERA_MOVEMENT.RIGHT)
             this.position = glm.vec.translate(this.position, this.right, velocity)
+        if(direction == CAMERA_MOVEMENT.UP)
+            this.position = glm.vec.translate(this.position, this.worldUp, velocity)
+        if(direction == CAMERA_MOVEMENT.DOWN)
+            this.position = glm.vec.translate(this.position, this.worldUp, - velocity)
     }
 }

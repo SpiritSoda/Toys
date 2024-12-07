@@ -1,0 +1,6 @@
+compile.bat
+bin.exe
+compile.sh
+bin
+/build
+/.vscode
